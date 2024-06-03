@@ -1,7 +1,10 @@
 import nltk
 
-# Download NLTK resources if not already downloaded
+# Set NLTK download directory
 nltk.download('punkt', download_dir="C:\\Users\\dell\\nltk_data")
+
+# Append custom NLTK data path
+nltk.data.path.append("C:\\Users\\dell\\nltk_data")
 import streamlit as st
 import aiohttp
 import asyncio
