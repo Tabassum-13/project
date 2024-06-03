@@ -7,6 +7,7 @@ import nltk
 import pyttsx3
 from bs4 import BeautifulSoup
 import subprocess
+nltk.data.path.append("C:\\Users\\dell\\nltk_data")
 
 engine = pyttsx3.init()
 
