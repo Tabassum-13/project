@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 import requests
 import runpy
 import nltk
-nltk.data.path.append("C:/Users/dell/nltk_data")
+nltk.data.path.append("C:\\Users\\dell\\nltk_data")
 
 # Create a connection object
 conn = sqlite3.connect('blog.db')
