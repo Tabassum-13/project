@@ -9,6 +9,9 @@ import pyttsx3
 from bs4 import BeautifulSoup
 import requests
 import runpy
+import nltk
+nltk.download('punkt')
+
 
 
 # Create a connection object
