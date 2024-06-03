@@ -9,4 +9,4 @@ streamlit==1.35.0
 transformers==4.41.2
 youtube_transcript_api==0.6.2
 googlesearch-python
-lxml
+lxml==4.9.3
