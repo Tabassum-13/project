@@ -1,9 +1,12 @@
+import nltk
+
+# Download NLTK resources if not already downloaded
+nltk.download('punkt', download_dir="C:\\Users\\dell\\nltk_data")
 import streamlit as st
 import aiohttp
 import asyncio
 from googlesearch import search
 import newspaper
-import nltk
 import pyttsx3
 from bs4 import BeautifulSoup
 import subprocess
