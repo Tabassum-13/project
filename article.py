@@ -9,7 +9,7 @@ import subprocess
 import nltk
 nltk.download('punkt')
 
-nltk.data.path.append('/path/to/nltk_data')
+nltk.data.path.append('C:\Users\dell\Downloads\punkt.zip\punkt')
 
 engine = pyttsx3.init()
 
