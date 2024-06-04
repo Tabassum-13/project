@@ -9,6 +9,8 @@ import subprocess
 import nltk
 nltk.download('punkt')
 
+nltk.data.path.append('/path/to/nltk_data')
+
 engine = pyttsx3.init()
 
 st.title('Summarizer and Recommender')
