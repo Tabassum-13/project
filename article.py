@@ -101,6 +101,7 @@
 #             st.error(f'Sorry, something went wrong: {e}')
 
 
+
 import os
 import nltk
 import streamlit as st
@@ -110,12 +111,8 @@ from googlesearch import search
 import newspaper
 from bs4 import BeautifulSoup
 
-# Download NLTK data to a relative directory
-nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
-if not os.path.exists(nltk_data_dir):
-    os.makedirs(nltk_data_dir)
-
-nltk.download('punkt', download_dir=nltk_data_dir)
+# Set NLTK data directory to the relative path in your project
+nltk_data_dir = os.path.join(os.path.dirname(__file__), 'nltk_data')
 nltk.data.path.append(nltk_data_dir)
 
 st.title('Summarizer and Recommender')
@@ -206,4 +203,9 @@ if url_or_text:
         except Exception as e:
             st.error(f'Sorry, something went wrong: {e}')
 
+
+
+
+
+        
 
