@@ -102,9 +102,11 @@
 
 
 
-import nltk
+
 import os
 from nltk.data import find
+import nltk
+nltk.download('punkt')
 
 try:
     find('tokenizers/punkt')
