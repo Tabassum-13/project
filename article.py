@@ -112,13 +112,17 @@ from googlesearch import search
 import newspaper
 from bs4 import BeautifulSoup
 
-# Define the path to your nltk_data directory
+# Download 'punkt' tokenizer if not already available
 nltk_data_dir = os.path.join(os.path.dirname(__file__), 'nltk_data')
+if not os.path.exists(nltk_data_dir):
+    os.makedirs(nltk_data_dir)
+
 nltk.data.path.append(nltk_data_dir)
 
-# Verify the nltk_data directory
-if not os.path.exists(nltk_data_dir):
-    st.error(f'nltk_data directory not found at {nltk_data_dir}')
+try:
+    nltk.data.find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt', download_dir=nltk_data_dir)
 
 st.title('Summarizer and Recommender')
 
@@ -213,6 +217,7 @@ if url_or_text:
                         st.image(article['top_image'], width=150, use_column_width=True)
         except Exception as e:
             st.error(f'Sorry, something went wrong: {e}')
+
 
 
 
