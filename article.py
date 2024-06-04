@@ -112,17 +112,21 @@ from googlesearch import search
 import newspaper
 from bs4 import BeautifulSoup
 
-# Download 'punkt' tokenizer if not already available
+# Set up the NLTK data directory
 nltk_data_dir = os.path.join(os.path.dirname(__file__), 'nltk_data')
 if not os.path.exists(nltk_data_dir):
     os.makedirs(nltk_data_dir)
 
 nltk.data.path.append(nltk_data_dir)
 
+# Try to download 'punkt' tokenizer
 try:
     nltk.data.find('tokenizers/punkt')
 except LookupError:
-    nltk.download('punkt', download_dir=nltk_data_dir)
+    try:
+        nltk.download('punkt', download_dir=nltk_data_dir)
+    except BrokenPipeError:
+        pass  # Handle the broken pipe error gracefully
 
 st.title('Summarizer and Recommender')
 
@@ -217,6 +221,7 @@ if url_or_text:
                         st.image(article['top_image'], width=150, use_column_width=True)
         except Exception as e:
             st.error(f'Sorry, something went wrong: {e}')
+
 
 
 
