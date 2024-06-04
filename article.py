@@ -103,7 +103,13 @@
 
 
 import nltk
-nltk.download('punkt')
+import os
+from nltk.data import find
+
+try:
+    find('tokenizers/punkt')
+except LookupError:
+    nltk.download('punkt')
 
 import streamlit as st
 import aiohttp
@@ -207,12 +213,6 @@ if url_or_text:
                         st.image(article['top_image'], width=150, use_column_width=True)
         except Exception as e:
             st.error(f'Sorry, something went wrong: {e}')
-
-
-
-
-
-
 
 
 
