@@ -387,6 +387,7 @@ def load_from_cache(key):
 def fetch_news(api_url, retries=3, backoff_factor=1.5):
     cached_data = load_from_cache(api_url)
     if cached_data:
+        st.info("Loaded from cache")
         return cached_data
 
     for attempt in range(retries):
@@ -397,10 +398,12 @@ def fetch_news(api_url, retries=3, backoff_factor=1.5):
             return response.text
         except requests.exceptions.RequestException as e:
             if response.status_code == 429:
+                st.warning(f"Rate limit exceeded. Retrying in {backoff_factor ** attempt} seconds...")
                 time.sleep(backoff_factor ** attempt)
             else:
-                st.error(f"An error occurred: {e}")
+                st.error(f"Request failed: {e}")
                 break
+    st.error("Failed to fetch articles after several retries.")
     return None
 
 # Streamlit app
@@ -410,21 +413,24 @@ api_url = f'https://newsapi.org/v2/top-headlines?country=in&apiKey={api_key}'
 data = fetch_news(api_url)
 
 if data:
-    articles = data.json().get('articles', [])
-    if not articles:
-        st.write("No articles found for India.")
-    else:
-        for article in articles:
-            st.header(article['title'])
-            st.markdown(f"<span style='color: red; font-size: 14px; font-weight: bold;'>Published at: {article['publishedAt']}</span>", unsafe_allow_html=True)
-            if article.get('author'):
-                st.write(article['author'])
-            st.write(article['source']['name'])
-            st.write(article['description'])
-            st.write(f"URL: {article['url']}")
-            if article['urlToImage'] and article['urlToImage'].endswith(('jpg', 'png', 'jpeg')):
-                st.image(article['urlToImage'])
-            else:
-                st.write("Image format not supported or URL not provided")
+    try:
+        articles = requests.get(api_url).json().get('articles', [])
+        if not articles:
+            st.write("No articles found for India.")
+        else:
+            for article in articles:
+                st.header(article['title'])
+                st.markdown(f"<span style='color: red; font-size: 14px; font-weight: bold;'>Published at: {article['publishedAt']}</span>", unsafe_allow_html=True)
+                if article.get('author'):
+                    st.write(article['author'])
+                st.write(article['source']['name'])
+                st.write(article['description'])
+                st.write(f"URL: {article['url']}")
+                if article['urlToImage'] and article['urlToImage'].endswith(('jpg', 'png', 'jpeg')):
+                    st.image(article['urlToImage'])
+                else:
+                    st.write("Image format not supported or URL not provided")
+    except Exception as e:
+        st.error(f"An error occurred while parsing articles: {e}")
 else:
     st.write("Failed to fetch articles after several retries.")
