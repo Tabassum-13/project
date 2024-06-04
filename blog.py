@@ -9,8 +9,7 @@ import pyttsx3
 from bs4 import BeautifulSoup
 import requests
 import runpy
-import nltk
-# nltk.data.path.append("C:\\Users\\dell\\nltk_data")
+
 
 # Create a connection object
 conn = sqlite3.connect('blog.db')
@@ -26,7 +25,7 @@ CREATE TABLE IF NOT EXISTS posts (
 )
 ''')
 conn.commit()
-# conn.close()
+conn.close()
 
 def add_post(author, title, content, date):
     try:
@@ -238,7 +237,6 @@ if choice == "Home":
                 st.error(f'Sorry, something went wrong: {e}')
 
         else:
-        # st.subheader('Recommended Articles')
             try:
                 articles = asyncio.run(fetch_recommended_articles(url_or_text))
                 for article in articles:
