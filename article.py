@@ -102,6 +102,7 @@
 
 
 
+
 import os
 import nltk
 import streamlit as st
@@ -111,9 +112,13 @@ from googlesearch import search
 import newspaper
 from bs4 import BeautifulSoup
 
-# Set NLTK data directory to the relative path in your project
+# Define the path to your nltk_data directory
 nltk_data_dir = os.path.join(os.path.dirname(__file__), 'nltk_data')
 nltk.data.path.append(nltk_data_dir)
+
+# Verify the nltk_data directory
+if not os.path.exists(nltk_data_dir):
+    st.error(f'nltk_data directory not found at {nltk_data_dir}')
 
 st.title('Summarizer and Recommender')
 
@@ -125,11 +130,11 @@ async def fetch_article_metadata(session, url):
         async with session.get(url) as response:
             text = await response.text()
             soup = BeautifulSoup(text, 'html.parser')
-            
+
             title = soup.find('title').get_text() if soup.find('title') else 'No title'
             og_image = soup.find('meta', property='og:image')
             image_url = og_image['content'] if og_image else None
-            
+
             return {
                 'title': title,
                 'top_image': image_url,
@@ -169,6 +174,12 @@ if url_or_text:
             if authors:
                 st.text(', '.join(authors))
 
+            # Ensure punkt is loaded
+            try:
+                nltk.data.find('tokenizers/punkt')
+            except LookupError:
+                st.error('The required NLTK data is not found. Please make sure "punkt" is included in the nltk_data directory.')
+
             article.nlp()
 
             keywords = article.keywords
@@ -202,6 +213,7 @@ if url_or_text:
                         st.image(article['top_image'], width=150, use_column_width=True)
         except Exception as e:
             st.error(f'Sorry, something went wrong: {e}')
+
 
 
 
