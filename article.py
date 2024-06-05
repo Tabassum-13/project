@@ -7,14 +7,7 @@ import pyttsx3
 from bs4 import BeautifulSoup
 import subprocess
 import nltk
-import os
 
-# Ensure the download directory exists
-nltk_data_dir = '/home/adminuser/nltk_data'
-os.makedirs(nltk_data_dir, exist_ok=True)
-
-# Download 'punkt' to the specified directory
-nltk.download('punkt', download_dir=nltk_data_dir, verbose=True)
 engine = pyttsx3.init()
 
 st.title('Summarizer and Recommender')
