@@ -112,22 +112,15 @@
 
 
 
-
-
-
-
-
+import nltk
 import streamlit as st
 import aiohttp
 import asyncio
 from googlesearch import search
 import newspaper
-import nltk
 import pyttsx3
 from bs4 import BeautifulSoup
-import os
-
-nltk.download('punkt')
+import subprocess
 
 engine = pyttsx3.init()
 
@@ -214,7 +207,7 @@ if url_or_text:
                 col1, col2 = st.columns([2, 1])
 
                 with col1:
-                    st.markdown(f"**[{article['title']}]({article['url']})**")
+                    st.markdown(f"[{article['title']}]({article['url']})")
                 with col2:
                     if article['top_image']:
                         st.image(article['top_image'], width=150, use_column_width=True)
