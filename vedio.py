@@ -23,6 +23,11 @@ def download_nltk_data():
     except LookupError:
         nltk.download('punkt', quiet=True, download_dir=nltk_data_dir)
 
+import os
+import sys
+import subprocess
+import streamlit as st
+
 def ensure_dependencies():
     try:
         import tensorflow as tf
@@ -38,12 +43,28 @@ def ensure_dependencies():
 
     if not tf_installed and not torch_installed:
         try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==1.9.0+cpu", "-f", "https://download.pytorch.org/whl/torch_stable.html"])
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0+cpu", "-f", "https://download.pytorch.org/whl/torch_stable.html"])
+        except subprocess.CalledProcessError as e:
+            st.error(f"Error installing PyTorch: {e}")
+            return False
         except Exception as e:
-            st.error(f"Error installing PyTorch: {str(e)}")
+            st.error(f"An unexpected error occurred: {str(e)}")
             return False
     
     return True
+
+dependencies_installed = ensure_dependencies()
+
+# Initialize summarizer if dependencies are installed
+if dependencies_installed:
+    try:
+        from transformers import pipeline
+        summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+    except Exception as e:
+        st.error(f"Error loading summarizer model: {str(e)}")
+        summarizer = None
+else:
+    summarizer = None
 
 download_nltk_data()
 dependencies_installed = ensure_dependencies()
