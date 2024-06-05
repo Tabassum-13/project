@@ -8,6 +8,12 @@ import pyttsx3
 from bs4 import BeautifulSoup
 import subprocess
 
+nltk.download('punkt')
+
+# Append nltk data path
+nltk_data_path = os.path.join('C:', 'Users', 'dell', 'Downloads', 'punkt.zip', 'punkt')
+nltk.data.path.append(nltk_data_path)
+
 engine = pyttsx3.init()
 
 st.title('Summarizer and Recommender')
