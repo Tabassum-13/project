@@ -281,9 +281,7 @@ elif choice == "Video Summarizer":
 elif choice == "Article Summarizer":
     # runpy.run_path("article.py")
     path_to_article = r"C:\Users\dell\.vscode\id.html\pythonproject\article.py"
-
-    try:
-        runpy.run_path(path_to_article)
+    runpy.run_path(path_to_article)
 
 
 elif choice == "View Posts":
