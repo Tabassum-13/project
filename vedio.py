@@ -3,11 +3,24 @@ from newspaper import Article
 from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound, TranscriptsDisabled, VideoUnavailable
 from transformers import pipeline
 import nltk
+import os
 import requests
 import json
 
-# Download NLTK data
-nltk.download('punkt')
+def download_nltk_data():
+    nltk_data_dir = os.path.join(os.path.expanduser('~'), 'nltk_data')
+    if not os.path.exists(nltk_data_dir):
+        os.makedirs(nltk_data_dir)
+    nltk.data.path.append(nltk_data_dir)
+    
+    # Check if 'punkt' is already downloaded
+    try:
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:
+        nltk.download('punkt', quiet=True, download_dir=nltk_data_dir)
+
+# Ensure the necessary NLTK data package is downloaded
+download_nltk_data()
 
 # Load the summarization pipeline
 summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
@@ -66,7 +79,7 @@ if url:
             st.write(f"Extracted Video ID: {video_id}")
 
             # Provide your YouTube Data API key here
-            api_key = "AIzaSyBpeSG0qej8ZFJ0uZ267nfHBW0fv_RQLEo"
+            api_key = "YOUR_YOUTUBE_API_KEY"
             video_title, thumbnail_url = get_youtube_video_details(video_id, api_key)
 
             if video_title and thumbnail_url:
@@ -96,4 +109,3 @@ if url:
                 st.error("Could not retrieve a transcript for the video.")
         except Exception as e:
             st.error(f"Sorry, something went wrong: {str(e)}")
-
