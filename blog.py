@@ -286,10 +286,8 @@ elif choice == "Article Summarizer":
         runpy.run_path(path_to_article)
     except SyntaxError as e:
         print(f"Syntax error in file {e.filename}, line {e.lineno}: {e.msg}")
-        sys.exit(1)
     except Exception as e:
         print(f"An error occurred: {e}")
-        sys.exit(1)
 
 
 
