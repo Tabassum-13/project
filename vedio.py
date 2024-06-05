@@ -29,12 +29,14 @@ def ensure_dependencies():
     
     try:
         import tensorflow as tf
+        st.write(f"TensorFlow version: {tf.__version__}")
         tf_installed = True
     except ImportError:
         st.info("TensorFlow not installed.")
     
     try:
         import torch
+        st.write(f"PyTorch version: {torch.__version__}")
         torch_installed = True
     except ImportError:
         st.info("PyTorch not installed.")
@@ -43,14 +45,15 @@ def ensure_dependencies():
         try:
             # Try installing PyTorch as a fallback
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0+cpu", "-f", "https://download.pytorch.org/whl/torch_stable.html"])
+            import torch
+            st.write(f"PyTorch version after installation: {torch.__version__}")
+            torch_installed = True
         except subprocess.CalledProcessError as e:
             st.error(f"Error installing PyTorch: {e}")
             return False
         except Exception as e:
             st.error(f"An unexpected error occurred: {str(e)}")
             return False
-        else:
-            torch_installed = True
     
     return tf_installed or torch_installed
 
@@ -61,6 +64,7 @@ if dependencies_installed:
     try:
         from transformers import pipeline
         summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+        st.write("Summarizer model loaded successfully.")
     except Exception as e:
         st.error(f"Error loading summarizer model: {str(e)}")
         summarizer = None
@@ -144,7 +148,7 @@ def get_youtube_video_details(video_id, api_key):
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
-        if "items" in data and len(data["items"]) > 0:
+        if "items" in data and len(data["items"]) > 0):
             snippet = data["items"][0]["snippet"]
             title = snippet["title"]
             thumbnail_url = snippet["thumbnails"]["high"]["url"]
