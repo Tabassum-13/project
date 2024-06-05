@@ -7,7 +7,16 @@ import pyttsx3
 from bs4 import BeautifulSoup
 import subprocess
 import nltk
-nltk.download('punkt')
+import os
+
+# Set the NLTK data path to a writable directory
+nltk_data_dir = os.path.join(os.path.expanduser('~'), 'nltk_data')
+if not os.path.exists(nltk_data_dir):
+    os.makedirs(nltk_data_dir)
+nltk.data.path.append(nltk_data_dir)
+
+# Ensure the necessary NLTK data package is downloaded
+nltk.download('punkt', download_dir=nltk_data_dir)
 
 engine = pyttsx3.init()
 
