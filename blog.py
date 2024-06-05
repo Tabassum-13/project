@@ -279,7 +279,19 @@ elif choice == "Video Summarizer":
     runpy.run_path("vedio.py")
 
 elif choice == "Article Summarizer":
-    runpy.run_path("article.py")
+    # runpy.run_path("article.py")
+    path_to_article = r"C:\Users\dell\.vscode\id.html\pythonproject\article.py"
+
+    try:
+        runpy.run_path(path_to_article)
+    except SyntaxError as e:
+        print(f"Syntax error in file {e.filename}, line {e.lineno}: {e.msg}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        sys.exit(1)
+
+
 
 elif choice == "View Posts":
     st.title("View Posts")
