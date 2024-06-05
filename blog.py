@@ -284,11 +284,6 @@ elif choice == "Article Summarizer":
 
     try:
         runpy.run_path(path_to_article)
-    except SyntaxError as e:
-        print(f"Syntax error in file {e.filename}, line {e.lineno}: {e.msg}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
 
 
 elif choice == "View Posts":
