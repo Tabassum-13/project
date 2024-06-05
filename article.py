@@ -7,6 +7,7 @@ import pyttsx3
 from bs4 import BeautifulSoup
 import subprocess
 import nltk
+nltk.download('punkt')
 
 engine = pyttsx3.init()
 
