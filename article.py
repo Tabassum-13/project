@@ -120,17 +120,23 @@ import os
 import nltk
 nltk.download('punkt')
 
+# Append nltk data path
 nltk_data_path = os.path.join('C:', 'Users', 'dell', 'Downloads', 'punkt.zip', 'punkt')
 nltk.data.path.append(nltk_data_path)
 
+# Initialize text-to-speech engine
 engine = pyttsx3.init()
 
+# Streamlit app title
 st.title('Summarizer and Recommender')
 
+# Function to check if input is URL
 def is_url(input_text):
     return input_text.startswith('http://') or input_text.startswith('https://')
 
+# Function to fetch article metadata asynchronously
 async def fetch_article_metadata(session, url):
+    st.write(f"Fetching metadata for URL: {url}")
     try:
         async with session.get(url) as response:
             text = await response.text()
@@ -149,9 +155,12 @@ async def fetch_article_metadata(session, url):
         st.write(f"Error fetching metadata for {url}: {e}")
         return None
 
+# Function to fetch recommended articles asynchronously
 async def fetch_recommended_articles(query):
+    st.write(f"Fetching recommended articles for query: {query}")
     try:
-        urls = search(query, num_results=6)
+        urls = list(search(query, num_results=6))
+        st.write(f"URLs fetched: {urls}")
         async with aiohttp.ClientSession() as session:
             tasks = [fetch_article_metadata(session, url) for url in urls]
             articles = await asyncio.gather(*tasks)
@@ -160,8 +169,10 @@ async def fetch_recommended_articles(query):
         st.error(f'Sorry, something went wrong: {e}')
         return []
 
+# Input field for URL or text
 url_or_text = st.text_input('', placeholder='Paste the URL of the article or enter a query and press Enter')
 
+# Main logic
 if url_or_text:
     st.write(f"Input received: {url_or_text}")
     if is_url(url_or_text):
@@ -203,12 +214,13 @@ if url_or_text:
                 engine.runAndWait()
 
         except Exception as e:
-            st.error(f'Sorry, something went wrong: {e}')
+            st.error(f'Sorry, something went wrong while processing the URL: {e}')
     else:
         st.write("Input is recognized as a query.")
         st.subheader('Recommended Articles')
         try:
             articles = asyncio.run(fetch_recommended_articles(url_or_text))
+            st.write(f"Articles fetched: {articles}")
             if not articles:
                 st.write("No articles found.")
             for article in articles:
@@ -220,6 +232,6 @@ if url_or_text:
                     if article['top_image']:
                         st.image(article['top_image'], width=150, use_column_width=True)
         except Exception as e:
-            st.error(f'Sorry, something went wrong: {e}')
+            st.error(f'Sorry, something went wrong while fetching recommended articles: {e}')
 else:
     st.write("Waiting for input.")
