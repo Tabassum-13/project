@@ -23,26 +23,25 @@ def download_nltk_data():
     except LookupError:
         nltk.download('punkt', quiet=True, download_dir=nltk_data_dir)
 
-import os
-import sys
-import subprocess
-import streamlit as st
-
 def ensure_dependencies():
+    tf_installed = False
+    torch_installed = False
+    
     try:
         import tensorflow as tf
         tf_installed = True
     except ImportError:
-        tf_installed = False
+        st.info("TensorFlow not installed.")
     
     try:
         import torch
         torch_installed = True
     except ImportError:
-        torch_installed = False
+        st.info("PyTorch not installed.")
 
     if not tf_installed and not torch_installed:
         try:
+            # Try installing PyTorch as a fallback
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0+cpu", "-f", "https://download.pytorch.org/whl/torch_stable.html"])
         except subprocess.CalledProcessError as e:
             st.error(f"Error installing PyTorch: {e}")
@@ -50,8 +49,10 @@ def ensure_dependencies():
         except Exception as e:
             st.error(f"An unexpected error occurred: {str(e)}")
             return False
+        else:
+            torch_installed = True
     
-    return True
+    return tf_installed or torch_installed
 
 dependencies_installed = ensure_dependencies()
 
@@ -67,7 +68,6 @@ else:
     summarizer = None
 
 download_nltk_data()
-dependencies_installed = ensure_dependencies()
 
 engine = pyttsx3.init()
 st.title('Summarizer and Recommender')
