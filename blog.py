@@ -357,6 +357,7 @@
 
 
 
+
 import sqlite3
 import pandas as pd
 import streamlit as st
@@ -369,21 +370,30 @@ from bs4 import BeautifulSoup
 import requests
 import runpy
 import os
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Initialize database
 def init_db():
-    conn = sqlite3.connect('blog.db')
-    c = conn.cursor()
-    c.execute('''
-    CREATE TABLE IF NOT EXISTS posts (
-        author TEXT NOT NULL,
-        title TEXT NOT NULL,
-        content TEXT NOT NULL,
-        date DATE NOT NULL
-    )
-    ''')
-    conn.commit()
-    conn.close()
+    try:
+        conn = sqlite3.connect('blog.db')
+        c = conn.cursor()
+        c.execute('''
+        CREATE TABLE IF NOT EXISTS posts (
+            author TEXT NOT NULL,
+            title TEXT NOT NULL,
+            content TEXT NOT NULL,
+            date DATE NOT NULL
+        )
+        ''')
+        conn.commit()
+        conn.close()
+    except sqlite3.Error as e:
+        logger.error(f"Database error: {e}")
+        st.error(f"Database error: {e}")
 
 init_db()
 
@@ -395,6 +405,7 @@ def add_post(author, title, content, date):
         conn.commit()
         conn.close()
     except sqlite3.Error as e:
+        logger.error(f"Error adding post: {e}")
         st.error(f"Error adding post: {e}")
 
 def get_all_posts():
@@ -406,6 +417,7 @@ def get_all_posts():
         conn.close()
         return data
     except sqlite3.Error as e:
+        logger.error(f"Error fetching posts: {e}")
         st.error(f"Error fetching posts: {e}")
         return []
 
@@ -418,6 +430,7 @@ def get_post_by_title(title):
         conn.close()
         return data
     except sqlite3.Error as e:
+        logger.error(f"Error fetching post by title: {e}")
         st.error(f"Error fetching post by title: {e}")
         return None
 
@@ -429,6 +442,7 @@ def delete_post(title):
         conn.commit()
         conn.close()
     except sqlite3.Error as e:
+        logger.error(f"Error deleting post: {e}")
         st.error(f"Error deleting post: {e}")
 
 # Define HTML templates for displaying posts
@@ -541,6 +555,7 @@ if choice == "Home":
                     'url': url
                 }
         except Exception as e:
+            logger.error(f"Error fetching article metadata: {e}")
             return None
 
     async def fetch_recommended_articles(query):
@@ -551,6 +566,7 @@ if choice == "Home":
                 articles = await asyncio.gather(*tasks)
                 return [article for article in articles if article]
         except Exception as e:
+            logger.error(f"Error fetching recommended articles: {e}")
             st.error(f'Sorry, something went wrong: {e}')
             return []
 
@@ -593,9 +609,11 @@ if choice == "Home":
                     engine.runAndWait()
 
             except Exception as e:
+                logger.error(f"Error processing article: {e}")
                 st.error(f'Sorry, something went wrong: {e}')
 
         else:
+            st.subheader('Recommended Articles')
             try:
                 articles = asyncio.run(fetch_recommended_articles(url_or_text))
                 for article in articles:
@@ -607,30 +625,8 @@ if choice == "Home":
                         if article['top_image']:
                             st.image(article['top_image'], width=150, use_column_width=True)
             except Exception as e:
+                logger.error(f"Error fetching recommended articles: {e}")
                 st.error(f'Sorry, something went wrong: {e}')
-
-    st.subheader('Recent News Articles')
-
-    url = "https://newsapi.org/v2/top-headlines?country=in&apiKey=50aec2557c344e3bb301a144b1e673dd"
-    r = requests.get(url)
-    r = r.json()
-    articles = r.get('articles', [])
-
-    if not articles:
-        st.write("No articles found for India.")
-    else:
-        for article in articles:
-            st.header(article['title'])
-            st.markdown(f"<span style='color: red; font-size: 14px; font-weight: bold;'>Published at: {article['publishedAt']}</span>", unsafe_allow_html=True)
-            if article.get('author'):
-                st.write(article['author'])
-            st.write(article['source']['name'])
-            st.write(article['description'])
-            st.write(f"URL: {article['url']}")
-            if article['urlToImage'] and article['urlToImage'].endswith(('jpg', 'png', 'jpeg')):
-                st.image(article['urlToImage'])
-            else:
-                st.write("Image format not supported or URL not provided")
 
 elif choice == "Video Summarizer":
     if os.path.isfile("vedio.py"):
@@ -644,6 +640,7 @@ elif choice == "Article Summarizer":
         try:
             runpy.run_path(path_to_article)
         except Exception as e:
+            logger.error(f"Error running article summarizer: {e}")
             st.error(f"An error occurred: {e}")
     else:
         st.error(f"The file {path_to_article} does not exist.")
