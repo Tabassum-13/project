@@ -9,14 +9,20 @@ import subprocess
 import nltk
 import os
 
-# Set the NLTK data path to a writable directory
-nltk_data_dir = os.path.join(os.path.expanduser('~'), 'nltk_data')
-if not os.path.exists(nltk_data_dir):
-    os.makedirs(nltk_data_dir)
-nltk.data.path.append(nltk_data_dir)
+def download_nltk_data():
+    nltk_data_dir = os.path.join(os.path.expanduser('~'), 'nltk_data')
+    if not os.path.exists(nltk_data_dir):
+        os.makedirs(nltk_data_dir)
+    nltk.data.path.append(nltk_data_dir)
+    
+    # Check if 'punkt' is already downloaded
+    try:
+        nltk.data.find('tokenizers/punkt')
+    except LookupError:
+        nltk.download('punkt', quiet=True, download_dir=nltk_data_dir)
 
 # Ensure the necessary NLTK data package is downloaded
-nltk.download('punkt', download_dir=nltk_data_dir)
+download_nltk_data()
 
 engine = pyttsx3.init()
 
