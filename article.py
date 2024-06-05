@@ -110,24 +110,8 @@
 
 
 import streamlit as st
-import asyncio
 
 st.title('Simple Streamlit Test')
 
-def is_url(input_text):
-    return input_text.startswith('http://') or input_text.startswith('https://')
-
 url_or_text = st.text_input('', placeholder='Paste the URL of the article or enter a query and press Enter')
 
-if url_or_text:
-    st.write(f"Input received: {url_or_text}")
-    if is_url(url_or_text):
-        st.write("Input is recognized as a URL.")
-        # Simulate processing
-        st.write("Processing URL...")
-    else:
-        st.write("Input is recognized as a query.")
-        # Simulate processing
-        st.write("Processing query...")
-else:
-    st.write("Waiting for input.")
