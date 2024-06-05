@@ -1,12 +1,18 @@
-import streamlit as st
-from newspaper import Article
-from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound, TranscriptsDisabled, VideoUnavailable
-from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
-import nltk
 import os
+import sys
+import subprocess
+import streamlit as st
+import aiohttp
+import asyncio
+from googlesearch import search
+import newspaper
+import pyttsx3
+from bs4 import BeautifulSoup
+import nltk
+from transformers import pipeline
 import requests
-import json
 
+# Function to ensure necessary NLTK data is downloaded
 def download_nltk_data():
     nltk_data_dir = os.path.join(os.path.expanduser('~'), 'nltk_data')
     if not os.path.exists(nltk_data_dir):
@@ -19,18 +25,81 @@ def download_nltk_data():
     except LookupError:
         nltk.download('punkt', quiet=True, download_dir=nltk_data_dir)
 
-# Ensure the necessary NLTK data package is downloaded
+# Function to ensure TensorFlow or PyTorch is installed
+def ensure_dependencies():
+    try:
+        import tensorflow as tf
+        tf_installed = True
+    except ImportError:
+        tf_installed = False
+    
+    try:
+        import torch
+        torch_installed = True
+    except ImportError:
+        torch_installed = False
+
+    if not tf_installed and not torch_installed:
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch"])  # Install PyTorch as a default option
+        except Exception as e:
+            st.error(f"Error installing PyTorch: {str(e)}")
+            return False
+    
+    return True
+
+# Ensure the necessary NLTK data package and dependencies are installed
 download_nltk_data()
+dependencies_installed = ensure_dependencies()
 
-# Load the summarization pipeline
-model_name = "sshleifer/distilbart-cnn-12-6"
-model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
+# Initialize the text-to-speech engine
+engine = pyttsx3.init()
 
-st.title('Article and Video Summarizer')
+st.title('Summarizer and Recommender')
 
-url = st.text_input('URL Input', placeholder='Paste the URL of the article or YouTube video and press Enter', label_visibility='collapsed')
+def is_url(input_text):
+    return input_text.startswith('http://') or input_text.startswith('https://')
+
+async def fetch_article_metadata(session, url):
+    try:
+        async with session.get(url) as response:
+            text = await response.text()
+            soup = BeautifulSoup(text, 'html.parser')
+            
+            title = soup.find('title').get_text() if soup.find('title') else 'No title'
+            og_image = soup.find('meta', property='og:image')
+            image_url = og_image['content'] if og_image else None
+            
+            return {
+                'title': title,
+                'top_image': image_url,
+                'url': url
+            }
+    except Exception as e:
+        return None
+
+async def fetch_recommended_articles(query):
+    try:
+        urls = search(query, num_results=6)
+        async with aiohttp.ClientSession() as session:
+            tasks = [fetch_article_metadata(session, url) for url in urls]
+            articles = await asyncio.gather(*tasks)
+            return [article for article in articles if article]
+    except Exception as e:
+        st.error(f'Sorry, something went wrong: {e}')
+        return []
+
+# Function to load the summarizer model
+def load_summarizer():
+    try:
+        summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+        return summarizer
+    except Exception as e:
+        st.error(f"Error loading summarizer model: {str(e)}")
+        return None
+
+# Load the summarizer model if dependencies are installed
+summarizer = load_summarizer() if dependencies_installed else None
 
 def summarize_text(text, max_chunk=1000):
     summarized_text = []
@@ -46,6 +115,7 @@ def summarize_text(text, max_chunk=1000):
 
 def get_transcript(video_id, language='en'):
     try:
+        from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound, TranscriptsDisabled, VideoUnavailable
         transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
         transcript = transcript_list.find_transcript([language])
         return " ".join([item['text'] for item in transcript.fetch()])
@@ -71,44 +141,87 @@ def get_youtube_video_details(video_id, api_key):
             return title, thumbnail_url
     return None, None
 
-if url:
-    if 'youtube.com/watch' in url or 'youtu.be/' in url:
-        try:
-            if 'youtube.com/watch' in url:
-                video_id = url.split('v=')[-1]
-            elif 'youtu.be/' in url:
-                video_id = url.split('/')[-1]
+url_or_text = st.text_input('', placeholder='Paste the URL of the article or enter a query and press Enter')
 
-            st.write(f"Extracted Video ID: {video_id}")
-
-            # Provide your YouTube Data API key here
-            api_key = "YOUR_YOUTUBE_API_KEY"
-            video_title, thumbnail_url = get_youtube_video_details(video_id, api_key)
-
-            if video_title and thumbnail_url:
-                st.image(thumbnail_url)
-                st.subheader(video_title)
-
-            transcript = get_transcript(video_id)
-            if not transcript:
-                transcript_list = YouTubeTranscriptApi.list_transcripts(video_id)
-                available_languages = transcript_list._manually_created_transcripts or transcript_list._generated_transcripts
-                available_languages = [t.language_code for t in available_languages]
-                st.write(f"Available languages: {', '.join(available_languages)}")
-                language = st.selectbox("Select a language", available_languages)
-                transcript = get_transcript(video_id, language)
-
-            if transcript:
-                tab1, tab2 = st.tabs(["Full Text", "Summary"])
-                with tab1:
-                    st.subheader('Full Text:')
-                    st.write(transcript)
-
-                with tab2:
-                    summarized_text = summarize_text(transcript)
-                    st.subheader('Summary:')
-                    st.write(summarized_text)
+if url_or_text:
+    if is_url(url_or_text):
+        if summarizer:
+            if 'youtube.com/watch' in url_or_text or 'youtu.be/' in url_or_text:
+                if 'youtube.com/watch' in url_or_text:
+                    video_id = url_or_text.split('v=')[-1]
+                elif 'youtu.be/' in url_or_text:
+                    video_id = url_or_text.split('/')[-1]
+                
+                api_key = "AIzaSyBpeSG0qej8ZFJ0uZ267nfHBW0fv_RQLEo"
+                video_title, thumbnail_url = get_youtube_video_details(video_id, api_key)
+                
+                if video_title and thumbnail_url:
+                    st.image(thumbnail_url)
+                    st.subheader(video_title)
+                
+                transcript = get_transcript(video_id)
+                if not transcript:
+                    st.error("Could not retrieve a transcript for the video.")
+                else:
+                    tab1, tab2 = st.tabs(["Full Text", "Summary"])
+                    with tab1:
+                        st.subheader('Full Text:')
+                        st.write(transcript)
+                    
+                    with tab2:
+                        summarized_text = summarize_text(transcript)
+                        st.subheader('Summary:')
+                        st.write(summarized_text)
             else:
-                st.error("Could not retrieve a transcript for the video.")
+                try:
+                    article = newspaper.Article(url_or_text)
+                    article.download()
+                    article.parse()
+
+                    img = article.top_image
+                    st.image(img)
+
+                    title = article.title
+                    st.subheader(title)
+
+                    authors = article.authors
+                    st.text(','.join(authors))
+
+                    article.nlp()
+
+                    keywords = article.keywords
+                    st.subheader('Keywords:')
+                    st.write(', '.join(keywords))
+
+                    tab1, tab2 = st.tabs(["Full Text", "Summary"])
+                    with tab1:
+                        st.subheader('Full Text')
+                        txt = article.text.replace('Advertisement', '')
+                        st.write(txt)
+                    with tab2:
+                        st.subheader('Summary')
+                        summary = article.summary.replace('Advertisement', '')
+                        st.write(summary)
+
+                    if st.button("Read Summary"):
+                        engine.say(summary)
+                        engine.runAndWait()
+
+                except Exception as e:
+                    st.error(f'Sorry, something went wrong: {e}')
+        else:
+            st.error("Summarizer model is not loaded.")
+    else:
+        st.subheader('Recommended Articles')
+        try:
+            articles = asyncio.run(fetch_recommended_articles(url_or_text))
+            for article in articles:
+                col1, col2 = st.columns([2, 1])
+
+                with col1:
+                    st.markdown(f"[{article['title']}]({article['url']})")
+                with col2:
+                    if article['top_image']:
+                        st.image(article['top_image'], width=150, use_column_width=True)
         except Exception as e:
-            st.error(f"Sorry, something went wrong: {str(e)}")
+            st.error(f'Sorry, something went wrong: {e}')
