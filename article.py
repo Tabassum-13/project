@@ -114,6 +114,7 @@ from googlesearch import search
 import newspaper
 import pyttsx3
 from bs4 import BeautifulSoup
+import subprocess
 import nltk
 import os
 
@@ -131,9 +132,11 @@ engine = pyttsx3.init()
 st.title('Summarizer and Recommender')
 
 def is_url(input_text):
+    st.write("Checking if input is URL:", input_text)
     return input_text.startswith('http://') or input_text.startswith('https://')
 
 async def fetch_article_metadata(session, url):
+    st.write("Fetching article metadata for URL:", url)
     try:
         async with session.get(url) as response:
             text = await response.text()
@@ -149,14 +152,17 @@ async def fetch_article_metadata(session, url):
                 'url': url
             }
     except Exception as e:
+        st.write(f"Error fetching metadata for {url}: {e}")
         return None
 
 async def fetch_recommended_articles(query):
+    st.write("Fetching recommended articles for query:", query)
     try:
         urls = search(query, num_results=6)
         async with aiohttp.ClientSession() as session:
             tasks = [fetch_article_metadata(session, url) for url in urls]
             articles = await asyncio.gather(*tasks)
+            st.write("Fetched articles:", articles)
             return [article for article in articles if article]
     except Exception as e:
         st.error(f'Sorry, something went wrong: {e}')
@@ -165,11 +171,14 @@ async def fetch_recommended_articles(query):
 url_or_text = st.text_input('', placeholder='Paste the URL of the article or enter a query and press Enter')
 
 if url_or_text:
+    st.write("Input received:", url_or_text)
     if is_url(url_or_text):
+        st.write("Input is a URL")
         try:
             article = newspaper.Article(url_or_text)
             article.download()
             article.parse()
+            st.write("Article downloaded and parsed")
 
             img = article.top_image
             if img:
@@ -205,6 +214,7 @@ if url_or_text:
             st.error(f'Sorry, something went wrong: {e}')
 
     else:
+        st.write("Input is a query")
         st.subheader('Recommended Articles')
         try:
             articles = asyncio.run(fetch_recommended_articles(url_or_text))
@@ -218,4 +228,3 @@ if url_or_text:
                         st.image(article['top_image'], width=150, use_column_width=True)
         except Exception as e:
             st.error(f'Sorry, something went wrong: {e}')
-
