@@ -148,7 +148,7 @@ def get_youtube_video_details(video_id, api_key):
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
-        if "items" in data and len(data["items"]) > 0:
+        if "items" in data and len(data["items"]) > 0):
             snippet = data["items"][0]["snippet"]
             title = snippet["title"]
             thumbnail_url = snippet["thumbnails"]["high"]["url"]
