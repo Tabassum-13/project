@@ -1,7 +1,7 @@
 import streamlit as st
 from newspaper import Article
 from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound, TranscriptsDisabled, VideoUnavailable
-from transformers import pipeline
+from transformers import pipeline, AutoModelForSeq2SeqLM, AutoTokenizer
 import nltk
 import os
 import requests
@@ -23,7 +23,10 @@ def download_nltk_data():
 download_nltk_data()
 
 # Load the summarization pipeline
-summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+model_name = "sshleifer/distilbart-cnn-12-6"
+model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+summarizer = pipeline("summarization", model=model, tokenizer=tokenizer)
 
 st.title('Article and Video Summarizer')
 
