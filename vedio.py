@@ -48,20 +48,21 @@ def ensure_dependencies():
     except ImportError:
         st.info("PyTorch not installed.")
 
-    if not tf_installed and not torch_installed:
-        try:
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0+cpu", "-f", "https://download.pytorch.org/whl/torch_stable.html"])
-            import torch
-            st.write(f"PyTorch version after installation: {torch.__version__}")
-            torch_installed = True
-        except subprocess.CalledProcessError as e:
-            st.error(f"Error installing PyTorch: {e}")
-            return False, False
-        except Exception as e:
-            st.error(f"An unexpected error occurred: {str(e)}")
-            return False, False
+    # if not tf_installed and not torch_installed:
+    #     try:
+    #         subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0+cpu", "-f", "https://download.pytorch.org/whl/torch_stable.html"])
+    #         import torch
+    #         st.write(f"PyTorch version after installation: {torch.__version__}")
+    #         torch_installed = True
+    #     except subprocess.CalledProcessError as e:
+    #         st.error(f"Error installing PyTorch: {e}")
+    #         return False, False
+    #     except Exception as e:
+    #         st.error(f"An unexpected error occurred: {str(e)}")
+    #         return False, False
     
-    return tf_installed, torch_installed
+    # return tf_installed, torch_installed
+    return True,True
 
 
 tf_installed, torch_installed = ensure_dependencies()
