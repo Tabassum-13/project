@@ -113,26 +113,6 @@ def delete_post(title):
     except sqlite3.Error as e:
         print(e)
 
-def update_likes(title, likes):
-    try:
-        conn = sqlite3.connect('blog.db')
-        c = conn.cursor()
-        c.execute('UPDATE posts SET likes=? WHERE title=?', (likes, title))
-        conn.commit()
-        conn.close()
-    except sqlite3.Error as e:
-        print(e)
-
-def update_rating(title, rating):
-    try:
-        conn = sqlite3.connect('blog.db')
-        c = conn.cursor()
-        c.execute('UPDATE posts SET rating=? WHERE title=?', (rating, title))
-        conn.commit()
-        conn.close()
-    except sqlite3.Error as e:
-        print(e)
-
 title_temp = """
 <div style="background-color:#ddf3ed;padding:10px;border-radius:10px;margin:10px;">
 <h4 style="color:#53C8B6;text-align:center;">{}</h4>
@@ -416,51 +396,10 @@ elif choice == "View Posts":
     st.title("View Posts")
     st.write("Here you can see all the posts in the blog.")
     posts = get_all_posts()
-    if posts:
-        for idx, post in enumerate(posts):
-            st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
-
-            col1, col2, col3 = st.columns([2, 1, 1])
-
-            with col1:
-                if st.button("Read More", key=f"read_more_{idx}"):
-                    st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
-
-            with col2:
-                like_key = f"like_{idx}"
-                like_button_id = f"like_button_{idx}"
-                like_button_style = """
-                <style>
-                .like-button {
-                    cursor: pointer;
-                    border: none;
-                    background-color: transparent;
-                    color: #000;
-                }
-                .liked {
-                    color: #e74c3c; /* Red color */
-                }
-                </style>
-                """
-                st.markdown(like_button_style, unsafe_allow_html=True)
-                liked = st.session_state.get(f'liked_{idx}', False)
-                like_count = st.session_state.get(f'like_count_{idx}', 0)
-                if st.button("❤", key=like_key, help="Like" if not liked else "Unlike", on_click=lambda: toggle_like(idx)):
-                    liked = not liked
-                    st.session_state[f'liked_{idx}'] = liked
-                    like_count = like_count + 1 if liked else max(0, like_count - 1)
-                    st.session_state[f'like_count_{idx}'] = like_count
-                if like_count > 0:
-                    st.markdown(f'<button class="like-button {"liked" if liked else ""}" id="{like_button_id}">{like_count}</button>', unsafe_allow_html=True)
-                else:
-                    st.markdown(f'<button class="like-button {"liked" if liked else ""}" id="{like_button_id}"></button>', unsafe_allow_html=True)
-
-            with col3:
-                rating_key = f"rating_{idx}"
-                rating = st.slider(f"Rate {post[1]}", 1, 5, key=rating_key)
-                update_rating(post[1], rating)
-    else:
-        st.write("No posts available.")
+    for idx, post in enumerate(posts):
+        st.markdown(title_temp.format(post[1], post[0], post[2][:50] + "..."), unsafe_allow_html=True)
+        if st.button("Read More", key=f"read_more_{idx}"):
+            st.markdown(post_temp.format(post[1], post[0], post[3], post[2]), unsafe_allow_html=True)
 
 elif choice == "Add Post":
     st.title("Add Post")
