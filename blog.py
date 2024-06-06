@@ -325,25 +325,7 @@ choice = st.sidebar.selectbox("Menu", menu)
 
 if choice == "Home":
     if st.session_state['logged_in']:
-        # st.write(f"Welcome {st.session_state['username']}")
-        st.markdown(f"""
-    <div style="
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        height: 100vh;
-        background-color: #f5f5f5;
-    ">
-        <h1 style="
-            color: #2c3e50; 
-            font-family: Arial, sans-serif; 
-            font-size: 3em; 
-            font-weight: bold;
-        ">
-            Welcome, {st.session_state['username']}!
-        </h1>
-    </div>
-""", unsafe_allow_html=True)
+        st.write(f"Welcome {st.session_state['username']}")
         url_or_text = st.text_input('', placeholder='Paste the URL of the article and press Enter')
 
         if url_or_text:
