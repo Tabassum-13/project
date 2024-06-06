@@ -9,7 +9,7 @@ import newspaper
 import pyttsx3
 from bs4 import BeautifulSoup
 import nltk
-from transformers import pipeline
+from transformers import pipeline, __version__ as transformers_version
 import requests
 
 def download_nltk_data():
@@ -58,8 +58,10 @@ def ensure_dependencies():
 
 dependencies_installed = ensure_dependencies()
 
+# Initialize summarizer if dependencies are installed
 if dependencies_installed:
     try:
+        st.write(f"Transformers version: {transformers_version}")
         summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
         st.write("Summarizer model loaded successfully.")
     except Exception as e:
