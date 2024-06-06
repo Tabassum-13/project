@@ -326,6 +326,8 @@ choice = st.sidebar.selectbox("Menu", menu)
 if choice == "Home":
     if st.session_state['logged_in']:
         st.write(f"Welcome {st.session_state['username']}")
+        st.markdown("Here you can see the recent news articles")
+        st.markdown("you can search the articles of you choice like eg: How Fraudsters are getting fake articles onto facebook")
         url_or_text = st.text_input('', placeholder='Paste the URL of the article and press Enter')
 
         if url_or_text:
