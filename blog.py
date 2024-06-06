@@ -448,13 +448,3 @@ elif choice == "Manage":
         st.write("Posts by author:")
         author_count = df["author"].value_counts()
         st.bar_chart(author_count)
-
-# Function to toggle like
-def toggle_like(idx):
-    liked = st.session_state.get(f'liked_{idx}', False)
-    st.session_state[f'liked_{idx}'] = not liked
-
-    # Update likes count in database
-    title = get_all_posts()[idx][1]
-    likes_count = st.session_state.get(f'like_count_{idx}', 0)
-    update_likes(title, likes_count)
