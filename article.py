@@ -64,7 +64,8 @@ st.markdown("With this app you can make the summary of the article. All you have
 st.markdown("1. the summary of the Article,") 
 st.markdown("2. suggestions or recommendations of articles with their urls,") 
 st.markdown("3. Make sure your links are in the form of eg: https://edition.cnn.com/2022/09/26/middleeast/iran-protests-explainer-mime-intl/index.html")
-st.markdown("4. if you want to search with titles eg: How Fraudsters are getting fake articles onto facebook or you can also use keywords like eg:health,sports")
+st.markdown("4. if you want to search with titles eg: How Fraudsters are getting fake articles onto facebook")
+st.markdown("5. you can also use keywords like eg: health, sports")
 
 url_or_text = st.text_input('', placeholder='Paste the URL of the article or enter a query and press Enter')
 
