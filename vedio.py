@@ -62,7 +62,10 @@ dependencies_installed = ensure_dependencies()
 if dependencies_installed:
     try:
         st.write(f"Transformers version: {transformers_version}")
-        summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
+        if torch_installed:
+            summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", framework="pt")
+        elif tf_installed:
+            summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6", framework="tf")
         st.write("Summarizer model loaded successfully.")
     except Exception as e:
         st.error(f"Error loading summarizer model: {str(e)}")
