@@ -24,6 +24,7 @@ def download_nltk_data():
         nltk.download('punkt', quiet=True, download_dir=nltk_data_dir)
 
 def ensure_dependencies():
+    global tf_installed, torch_installed
     tf_installed = False
     torch_installed = False
     
