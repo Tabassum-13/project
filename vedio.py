@@ -43,7 +43,6 @@ def ensure_dependencies():
 
     if not tf_installed and not torch_installed:
         try:
-            # Try installing PyTorch as a fallback
             subprocess.check_call([sys.executable, "-m", "pip", "install", "torch==2.0.0+cpu", "-f", "https://download.pytorch.org/whl/torch_stable.html"])
             import torch
             st.write(f"PyTorch version after installation: {torch.__version__}")
@@ -59,10 +58,8 @@ def ensure_dependencies():
 
 dependencies_installed = ensure_dependencies()
 
-# Initialize summarizer if dependencies are installed
 if dependencies_installed:
     try:
-        from transformers import pipeline
         summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
         st.write("Summarizer model loaded successfully.")
     except Exception as e:
@@ -102,19 +99,6 @@ async def fetch_recommended_articles(query):
         st.error(f'Sorry, something went wrong: {e}')
         return []
 
-def load_summarizer():
-    try:
-        summarizer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
-        return summarizer
-    except Exception as e:
-        st.error(f"Error loading summarizer model: {str(e)}")
-        return None
-
-if dependencies_installed:
-    summarizer = load_summarizer()
-else:
-    summarizer = None
-
 def summarize_text(text, max_chunk=1000):
     summarized_text = []
     num_iters = int(len(text) / max_chunk) + 1
@@ -148,7 +132,7 @@ def get_youtube_video_details(video_id, api_key):
     response = requests.get(url)
     if response.status_code == 200:
         data = response.json()
-        if "items" in data and len(data["items"]) > 0):
+        if "items" in data and len(data["items"]) > 0:
             snippet = data["items"][0]["snippet"]
             title = snippet["title"]
             thumbnail_url = snippet["thumbnails"]["high"]["url"]
@@ -166,7 +150,7 @@ if url_or_text:
                 elif 'youtu.be/' in url_or_text:
                     video_id = url_or_text.split('/')[-1]
                 
-                api_key = "YOUR_YOUTUBE_API_KEY"
+                api_key = st.secrets["YOUTUBE_API_KEY"]  # Securely handle API keys
                 video_title, thumbnail_url = get_youtube_video_details(video_id, api_key)
                 
                 if video_title and thumbnail_url:
