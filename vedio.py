@@ -11,6 +11,15 @@ from bs4 import BeautifulSoup
 import nltk
 from transformers import pipeline, __version__ as transformers_version
 import requests
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Access the YouTube API key
+api_key = os.getenv('YOUTUBE_API_KEY')
+if not api_key:
+    st.error("API key is not set. Please check your .env file.")
 
 def download_nltk_data():
     nltk_data_dir = os.path.join(os.path.expanduser('~'), 'nltk_data')
@@ -156,7 +165,6 @@ if url_or_text:
                 elif 'youtu.be/' in url_or_text:
                     video_id = url_or_text.split('/')[-1]
                 
-                api_key = st.secrets["YOUTUBE_API_KEY"]  # Securely handle API keys
                 video_title, thumbnail_url = get_youtube_video_details(video_id, api_key)
                 
                 if video_title and thumbnail_url:
