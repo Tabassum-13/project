@@ -55,17 +55,17 @@ def ensure_dependencies():
             torch_installed = True
         except subprocess.CalledProcessError as e:
             st.error(f"Error installing PyTorch: {e}")
-            return False
+            return False, False
         except Exception as e:
             st.error(f"An unexpected error occurred: {str(e)}")
-            return False
+            return False, False
     
-    return tf_installed or torch_installed
+    return tf_installed, torch_installed
 
-dependencies_installed = ensure_dependencies()
 
+tf_installed, torch_installed = ensure_dependencies()
 # Initialize summarizer if dependencies are installed
-if dependencies_installed:
+if tf_installed or torch_installed:
     try:
         st.write(f"Transformers version: {transformers_version}")
         if torch_installed:
