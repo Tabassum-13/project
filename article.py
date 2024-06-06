@@ -60,13 +60,11 @@ async def fetch_recommended_articles(query):
         st.error(f'Sorry, something went wrong: {e}')
         return []
 
-url_or_text = st.text_input('', placeholder='Paste the URL of the article or enter a query and press Enter')
-
-
 st.markdown("With this app you can make the summary of the article. All you have to do is to keep the link of the article or you can aslo search titles of the articles to get the suggestions Once you click enter you can see the results:")
 st.markdown("1. the summary of the Article,") 
 st.markdown("2. suggestions or recommendations of articles with their urls,") 
 
+url_or_text = st.text_input('', placeholder='Paste the URL of the article or enter a query and press Enter')
 
 if url_or_text:
     if is_url(url_or_text):
