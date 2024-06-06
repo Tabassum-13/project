@@ -74,7 +74,7 @@ else:
 download_nltk_data()
 
 engine = pyttsx3.init()
-st.title('Summarizer and Recommender')
+st.title('Video Summarizer')
 
 def is_url(input_text):
     return input_text.startswith('http://') or input_text.startswith('https://')
