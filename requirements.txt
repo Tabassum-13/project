@@ -6,9 +6,11 @@ pandas==2.2.2
 pyttsx3==2.90
 requests==2.32.3
 streamlit==1.35.0
-transformers==4.41.2
+transformers==4.28.0
+torch==2.3.0
 youtube_transcript_api==0.6.2
 googlesearch-python
 lxml==4.9.3
 tensorflow==2.12.0
 numpy
+google
