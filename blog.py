@@ -320,7 +320,7 @@ if 'logged_in' not in st.session_state:
 if 'username' not in st.session_state:
     st.session_state['username'] = ''
 
-menu = ["Home", "Add Post", "View Posts", "Search Blogs", "Video Summarizer", "Article Summarizer", "Manage"]
+menu = ["Home", "Article Summarizer", "Video Summarizer", "Add Post", "View Posts", "Search Blogs", "Manage"]
 choice = st.sidebar.selectbox("Menu", menu)
 
 if choice == "Home":
