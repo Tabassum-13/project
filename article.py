@@ -63,6 +63,7 @@ async def fetch_recommended_articles(query):
 st.markdown("With this app you can make the summary of the article. All you have to do is to keep the link of the article or you can aslo search titles of the articles to get the suggestions Once you click enter you can see the results:")
 st.markdown("1. the summary of the Article,") 
 st.markdown("2. suggestions or recommendations of articles with their urls,") 
+st.markdown("3. Make sure your links are in the form of eg: https://edition.cnn.com/2022/09/26/middleeast/iran-protests-explainer-mime-intl/index.html or if you want to search with titles eg:How Fraudsters are getting fake articles onto facebook or you can also use keywords like eg:health,sports") 
 
 url_or_text = st.text_input('', placeholder='Paste the URL of the article or enter a query and press Enter')
 
